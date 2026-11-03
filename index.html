@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>张三 · 产品经理 | XX科技</title>
+<style>
+  :root{
+    --brand:#1f6feb;
+    --text:#1b1f24;
+    --sub:#5b6572;
+    --line:#e8ecf1;
+    --bg:#f5f7fa;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{
+    margin:0;padding:20px 14px 40px;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    line-height:1.6;
+  }
+  .card{
+    max-width:480px;margin:0 auto;background:var(--card);border-radius:18px;
+    padding:24px 20px;box-shadow:0 6px 24px rgba(20,30,50,.08);
+  }
+  .head{display:flex;align-items:center;gap:14px}
+  .avatar{
+    width:72px;height:72px;border-radius:50%;object-fit:cover;
+    background:var(--brand);flex:0 0 auto;
+  }
+  .name{font-size:22px;font-weight:700;margin:0}
+  .role{font-size:14px;color:var(--sub);margin:2px 0 0}
+  .tagline{
+    margin:16px 0 0;padding:10px 12px;background:#f0f5ff;border-radius:10px;
+    font-size:14px;color:#2b4a80;
+  }
+  .actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px}
+  .actions a,.actions button{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    padding:10px 4px;border:1px solid var(--line);border-radius:12px;background:#fff;
+    color:var(--text);text-decoration:none;font-size:13px;cursor:pointer;font-family:inherit;
+  }
+  .actions span{font-size:18px;line-height:1}
+  .primary{
+    width:100%;margin-top:12px;padding:14px;border:0;border-radius:12px;
+    background:var(--brand);color:#fff;font-size:16px;font-weight:600;
+    cursor:pointer;font-family:inherit;
+  }
+  .primary:active{opacity:.85}
+  .hint{font-size:12px;color:#98a2b0;text-align:center;margin:8px 0 0}
+  section{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+  h2{font-size:15px;margin:0 0 10px;color:var(--sub);font-weight:600;letter-spacing:.5px}
+  ul{margin:0;padding-left:18px;font-size:14px}
+  li{margin:6px 0}
+  .row{display:flex;justify-content:space-between;gap:12px;font-size:14px;padding:8px 0}
+  .row .k{color:var(--sub);flex:0 0 auto}
+  .row .v{text-align:right;word-break:break-all}
+  .row a{color:var(--brand);text-decoration:none}
+  .qr{text-align:center;margin-top:8px}
+  .qr canvas{width:160px;height:160px;border-radius:8px;background:#fff}
+  .qr p{font-size:12px;color:#98a2b0;margin:6px 0 0}
+  .toast{
+    position:fixed;left:50%;bottom:40px;transform:translate(-50%,20px);
+    background:rgba(20,25,35,.9);color:#fff;padding:10px 18px;border-radius:20px;
+    font-size:14px;opacity:0;pointer-events:none;transition:.25s;z-index:99;
+  }
+  .toast.show{opacity:1;transform:translate(-50%,0)}
+  @media (prefers-color-scheme: dark){
+    :root{--text:#e6e9ee;--sub:#98a2b0;--line:#2a3038;--bg:#12161c;--card:#1a1f26}
+    .tagline{background:#1b2738;color:#a8c4ea}
+    .actions a,.actions button{background:#1f252d}
+  }
+</style>
+</head>
+<body>
+
+<main class="card">
+  <!-- 首屏 -->
+  <div class="head">
+    <img class="avatar" id="avatar" src="avatar.jpg" alt="头像">
+    <div>
+      <h1 class="name" id="name">张三</h1>
+      <p class="role" id="role">产品经理 · XX科技有限公司</p>
+    </div>
+  </div>
+
+  <p class="tagline" id="tagline">专注企业数字化，把想法变成可用的产品</p>
+
+  <!-- 联系入口 -->
+  <div class="actions">
+    <a id="telBtn" href="tel:+8613800000000"><span>📞</span>打电话</a>
+    <button id="wechatBtn" type="button"><span>💬</span>复制微信</button>
+    <a id="mailBtn" href="mailto:zhangsan@example.com"><span>✉️</span>发邮件</a>
+  </div>
+
+  <button class="primary" id="saveBtn" type="button">保存到通讯录</button>
+  <p class="hint" id="saveHint">生成 .vcf 名片，手机可直接导入联系人</p>
+
+  <!-- 关于我 -->
+  <section>
+    <h2>关于我</h2>
+    <p style="margin:0;font-size:14px" id="about"></p>
+  </section>
+
+  <!-- 我能提供 -->
+  <section>
+    <h2>我能提供</h2>
+    <ul id="services"></ul>
+  </section>
+
+  <!-- 联系与导航 -->
+  <section>
+    <h2>联系与导航</h2>
+    <div id="contacts"></div>
+  </section>
+
+  <!-- 二维码 -->
+  <section class="qr">
+    <h2>扫码保存名片</h2>
+    <canvas id="qrcanvas"></canvas>
+    <p>用手机相机或微信扫码打开本页</p>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!-- 二维码库：离线可自行下载 qrcode.min.js 放本地 -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script>
+/* ============ 1. 只改这里 ============ */
+const profile = {
+  name:   '张三',
+  title:  '产品经理',
+  org:    'XX科技有限公司',
+  phone:  '+8613800000000',          // 国际格式，兼容性好
+  phoneShow: '138 0000 0000',        // 页面上展示的格式
+  email:  'zhangsan@example.com',
+  wechat: 'zhangsan_wx',
+  website:'https://example.com',
+  address:'北京市朝阳区XX路1号XX大厦',
+  mapUrl: 'https://uri.amap.com/marker?position=116.48,39.99&name=XX大厦',
+  about:  '5 年 B 端产品经验，做过 SaaS、小程序与数据后台，擅长需求梳理、原型设计与跨团队推进。',
+  services: [
+    '产品从 0 到 1 的方案设计与落地',
+    '小程序 / H5 页面设计与开发协作',
+    '企业数字化流程梳理'
+  ]
+};
+/* ==================================== */
+
+const $ = id => document.getElementById(id);
+const isWechat = /MicroMessenger/i.test(navigator.userAgent);
+const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+/* ---- 渲染页面 ---- */
+$('name').textContent = profile.name;
+$('role').textContent = `${profile.title} · ${profile.org}`;
+$('tagline').textContent = profile.tagline || '';
+$('about').textContent = profile.about;
+$('services').innerHTML = profile.services.map(s => `<li>${s}</li>`).join('');
+
+$('telBtn').href = `tel:${profile.phone}`;
+$('mailBtn').href = `mailto:${profile.email}`;
+$('mailBtn').title = profile.email;
+
+$('contacts').innerHTML = `
+  <div class="row"><span class="k">手机</span><span class="v"><a href="tel:${profile.phone}">${profile.phoneShow}</a></span></div>
+  <div class="row"><span class="k">邮箱</span><span class="v"><a href="mailto:${profile.email}">${profile.email}</a></span></div>
+  <div class="row"><span class="k">微信</span><span class="v">${profile.wechat}</span></div>
+  <div class="row"><span class="k">官网</span><span class="v"><a href="${profile.website}" target="_blank" rel="noopener">${profile.website.replace(/^https?:\/\//,'')}</a></span></div>
+  <div class="row"><span class="k">地址</span><span class="v"><a href="${profile.mapUrl}" target="_blank" rel="noopener">${profile.address}</a></span></div>
+`;
+
+/* ---- 2. 生成 vCard ---- */
+function esc(s){
+  return String(s || '')
+    .replace(/\\/g,'\\\\').replace(/;/g,'\\;')
+    .replace(/,/g,'\\,').replace(/\n/g,'\\n');
+}
+function buildVCard(p){
+  const lines = [
+    'BEGIN:VCARD',
+    'VERSION:3.0',
+    `N:${esc(p.name)};;;;`,
+    `FN:${esc(p.name)}`,
+    `ORG:${esc(p.org)}`,
+    `TITLE:${esc(p.title)}`,
+    `TEL;TYPE=CELL:${p.phone}`,
+    `EMAIL;TYPE=WORK,INTERNET:${p.email}`,
+    `URL:${p.website}`,
+    `ADR;TYPE=WORK:;;${esc(p.address)};;;;`,
+    `NOTE:${esc(p.about)}`,
+    'END:VCARD'
+  ];
+  return lines.join('\r\n');
+}
+
+/* ---- 3. 一键保存联系人 ---- */
+$('saveBtn').addEventListener('click', () => {
+  // 微信内置浏览器（尤其 iOS）不支持下载 .vcf
+  if (isWechat) {
+    toast(isIOS
+      ? '请点右上角「···」→「在 Safari 中打开」后保存'
+      : '请点右上角「···」→「在浏览器打开」后保存');
+    return;
+  }
+  const blob = new Blob([buildVCard(profile)], { type: 'text/vcard;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${profile.name}.vcf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+  toast('名片已下载，打开文件即可导入');
+});
+
+/* ---- 4. 复制微信号 ---- */
+async function copyText(text){
+  try{
+    await navigator.clipboard.writeText(text);
+    return true;
+  }catch(e){
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch(_){}
+    ta.remove();
+    return ok;
+  }
+}
+$('wechatBtn').addEventListener('click', async () => {
+  const ok = await copyText(profile.wechat);
+  toast(ok ? `微信号 ${profile.wechat} 已复制` : `微信号：${profile.wechat}`);
+});
+
+/* ---- 5. 生成当前页二维码 ---- */
+(function renderQR(){
+  const canvas = $('qrcanvas');
+  const url = location.href.split('#')[0];
+  if (typeof QRCode === 'undefined') {
+    canvas.outerHTML = '<p style="font-size:12px;color:#98a2b0">二维码加载失败，请检查网络</p>';
+    return;
+  }
+  QRCode.toCanvas(canvas, url, {
+    width: 320,          // 内部像素，CSS 控制显示尺寸，保证高清
+    margin: 1,
+    color: { dark: '#1b1f24', light: '#ffffff' },
+    errorCorrectionLevel: 'M'
+  }, err => { if (err) console.warn(err); });
+})();
+
+/* ---- 6. Toast ---- */
+let toastTimer;
+function toast(msg){
+  const el = $('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+</script>
+</body>
+</html>
